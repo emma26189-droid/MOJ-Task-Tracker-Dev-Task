@@ -1,0 +1,75 @@
+{# src/main/views/edit-task.njk #}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/textarea/macro.njk" import govukTextarea %}
+{% from "govuk/components/select/macro.njk" import govukSelect %}
+{% from "govuk/components/date-input/macro.njk" import govukDateInput %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% extends "template.njk" %}
+
+{% block pageTitle %}Edit Task{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+
+      <h1 class="govuk-heading-xl">Edit task</h1>
+
+      {% if errors %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: errors
+        }) }}
+      {% endif %}
+
+      <form method="POST" action="/tasks/{{ task.id }}/edit" novalidate>
+        {{ govukInput({
+          label: { text: "Title", classes: "govuk-label--m" },
+          id: "title",
+          name: "title",
+          value: values.title if values and values.title
+        }) }}
+
+        {{ govukTextarea({
+          label: { text: "Description (optional)", classes: "govuk-label--m" },
+          id: "description",
+          name: "description",
+          value: values.description if values and values.description
+        }) }}
+
+        {{ govukSelect({
+          label: { text: "Status", classes: "govuk-label--m" },
+          id: "status",
+          name: "status",
+          items: [
+            { value: "", text: "Select status" },
+            { value: "TO_DO", text: "To do", selected: values.status == "TO_DO" },
+            { value: "IN_PROGRESS", text: "In progress", selected: values.status == "IN_PROGRESS" },
+            { value: "COMPLETED", text: "Completed", selected: values.status == "COMPLETED" }
+          ]
+        }) }}
+
+        {{ govukDateInput({
+          id: "due-date",
+          namePrefix: "dueDate",
+          fieldset: {
+            legend: { text: "Due date", classes: "govuk-fieldset__legend--m" }
+          },
+          hint: { text: "For example, 31 3 2025" },
+          items: [
+            { name: "day",   value: values["dueDate-day"] },
+            { name: "month", value: values["dueDate-month"] },
+            { name: "year",  value: values["dueDate-year"] }
+          ]
+        }) }}
+
+        <div class="govuk-button-group">
+          {{ govukButton({ text: "Save changes", type: "submit" }) }}
+          <a class="govuk-link" href="/tasks">Cancel</a>
+        </div>
+      </form>
+
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,8 @@
+{
+  "watch": ["src/main"],
+  "ext": "ts,js",
+  "ignore": ["src/**/*.spec.ts"],
+  "exec": "bash -lc \"'C:/Users/emma2/Documents/GitHub/MOJ-Emma/hmcts-dev-test-frontend-master/bin/generate-ssl-options.sh' && yarn node --loader ./.pnp.loader.mjs -r ts-node/register -r tsconfig-paths/register ./src/main/server.ts\"",
+  "signal": "SIGTERM",
+  "delay": "200"
+}
