@@ -6,26 +6,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.reform.dev.models.Task;
 import uk.gov.hmcts.reform.dev.models.TaskRequest;
 import uk.gov.hmcts.reform.dev.services.TaskService;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/tasks")
-@CrossOrigin(origins = "http://localhost:3000") // Allow frontend requests
+@CrossOrigin(origins = "http://localhost:3000")
 @Validated
 public class TaskController {
     private static final Logger log = LoggerFactory.getLogger(TaskController.class);
@@ -59,10 +53,36 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Task>> getAllTasks() {
-        log.info("Fetching all tasks");
+    public ResponseEntity<List<Task>> getAllTasks(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String order) {
+
+        log.info("Fetching all tasks with filters - status: {}, sort: {}, order: {}", status, sort, order);
         List<Task> tasks = taskService.getAllTasks();
-        log.info("Found {} tasks", tasks.size());
+
+        if (status != null && !status.isEmpty()) {
+            tasks = tasks.stream()
+                    .filter(task -> status.equalsIgnoreCase(task.getStatus()))
+                    .collect(Collectors.toList());
+        }
+
+        if (sort != null) {
+            Comparator<Task> comparator = switch (sort) {
+                case "dueDate" -> Comparator.comparing(Task::getDueDate);
+                case "title" -> Comparator.comparing(Task::getTitle);
+                default -> null;
+            };
+
+            if (comparator != null) {
+                if ("desc".equalsIgnoreCase(order)) {
+                    comparator = comparator.reversed();
+                }
+                tasks.sort(comparator);
+            }
+        }
+
+        log.info("Returning {} tasks", tasks.size());
         return ResponseEntity.ok(tasks);
     }
 

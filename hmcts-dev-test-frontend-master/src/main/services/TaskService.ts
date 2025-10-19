@@ -1,11 +1,18 @@
 import axios from 'axios';
 import type { Task } from '../types/task';
+import type { TaskCounter } from '../types/taskCounter';
 
 const API_BASE_URL = 'http://localhost:4000/api/tasks';
+let taskCounter = { currentNumber: 0 };
 
 export const TaskService = {
   async getAllTasks(): Promise<Task[]> {
     const response = await axios.get<Task[]>(API_BASE_URL);
+    // Update the counter to be the highest task number
+    taskCounter.currentNumber = Math.max(
+      ...response.data.map(task => task.taskNumber || 0),
+      taskCounter.currentNumber
+    );
     return response.data;
   },
 
@@ -15,7 +22,13 @@ export const TaskService = {
   },
 
   async createTask(task: Omit<Task, 'id'>): Promise<Task> {
-    const response = await axios.post<Task>(API_BASE_URL, task);
+    // Increment the task number
+    taskCounter.currentNumber++;
+    const taskWithNumber = {
+      ...task,
+      taskNumber: taskCounter.currentNumber
+    };
+    const response = await axios.post<Task>(API_BASE_URL, taskWithNumber);
     return response.data;
   },
 

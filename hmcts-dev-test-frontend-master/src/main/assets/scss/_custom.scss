@@ -1,0 +1,75 @@
+.task-number {
+  color: #505a5f;
+  font-family: monospace;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.task-card {
+  background: #ffffff;
+  border: 1px solid #b1b4b6;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.task-card-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.task-list {
+  margin-top: 2rem;
+}
+
+.create-task-section {
+  background: #f8f8f8;
+  padding: 2rem;
+  margin-bottom: 3rem;
+  border-radius: 4px;
+}
+
+.section-heading {
+  border-bottom: 3px solid #1d70b8;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.task-summary-list {
+  .govuk-summary-list {
+    border: none;
+    margin-bottom: 1rem;
+  }
+
+  .govuk-summary-list__key {
+    width: 30%;
+  }
+}
+
+.task-actions {
+  border-top: 1px solid #b1b4b6;
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+
+.task-filters {
+  background: #f8f8f8;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border-radius: 4px;
+
+  .govuk-form-group {
+    margin-bottom: 0;
+  }
+
+  .filter-group {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+  }
+}

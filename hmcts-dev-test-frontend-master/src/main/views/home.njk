@@ -24,10 +24,11 @@
         }) }}
       {% endif %}
 
-      <h2 class="govuk-heading-l">Create a new task</h2>
+      <div class="create-task-section">
+        <h2 class="govuk-heading-l section-heading">Create a new task</h2>
 
-      <form method="POST" action="/tasks" novalidate>
-        {{ govukInput({
+        <form method="POST" action="/tasks" novalidate>
+          {{ govukInput({
           label: { text: "Title", classes: "govuk-label--m" },
           id: "title",
           name: "title",
@@ -76,15 +77,62 @@
   </div>
 
   <div class="govuk-grid-row govuk-!-margin-top-6">
-    <div class="govuk-grid-column-two-thirds">
-      <h2 class="govuk-heading-l">Tasks</h2>
+  <div class="govuk-grid-column-full">
+    <div class="govuk-panel task-list-box">
+      <h2 class="govuk-heading-l section-heading">Tasks</h2>
+
+      <div class="task-filters">
+        <form method="GET" action="/tasks" class="filter-group">
+          {{ govukSelect({
+            label: { text: "Filter by status" },
+            id: "statusFilter",
+            name: "status",
+            classes: "govuk-!-width-one-third",
+            items: [
+              { value: "", text: "All statuses" },
+              { value: "TO_DO", text: "To do", selected: query.status === "TO_DO" },
+              { value: "IN_PROGRESS", text: "In progress", selected: query.status === "IN_PROGRESS" },
+              { value: "COMPLETED", text: "Completed", selected: query.status === "COMPLETED" }
+            ]
+          }) }}
+
+          {{ govukSelect({
+            label: { text: "Sort by" },
+            id: "sortBy",
+            name: "sort",
+            classes: "govuk-!-width-one-third",
+            items: [
+              { value: "id", text: "Task ID", selected: query.sort === "id" },
+              { value: "dueDate", text: "Due date", selected: query.sort === "dueDate" }
+            ]
+          }) }}
+
+          {{ govukSelect({
+            label: { text: "Order" },
+            id: "sortOrder",
+            name: "order",
+            classes: "govuk-!-width-one-third",
+            items: [
+              { value: "asc", text: "Ascending", selected: query.order === "asc" },
+              { value: "desc", text: "Descending", selected: query.order === "desc" }
+            ]
+          }) }}
+
+          {{ govukButton({
+            text: "Apply filters",
+            classes: "govuk-!-margin-bottom-0"
+          }) }}
+        </form>
+      </div>
 
       {% if tasks and tasks.length > 0 %}
         {% for task in tasks %}
-          <div class="govuk-!-margin-bottom-6 govuk-!-padding-3" style="border:1px solid #b1b4b6; border-radius:4px;">
-            {{ govukSummaryList({
+          <div class="task-card govuk-!-margin-bottom-6 govuk-!-padding-4">
+            <div class="task-summary-list">
+              {{ govukSummaryList({
               classes: "govuk-!-margin-bottom-3",
               rows: [
+                { key: { text: "Task Id" }, value: { html: '<span class="task-number">TASK-' + task.id + '</span>' } },
                 { key: { text: "Title" }, value: { text: task.title } },
                 { key: { text: "Description" }, value: { text: task.description if task.description else "Not provided" } },
                 { key: { text: "Status" }, value: { text: task.status | replace("_", " ") | title } },
@@ -92,7 +140,7 @@
               ]
             }) }}
 
-            <div class="govuk-button-group">
+            <div class="govuk-button-group task-actions">
               {{ govukButton({
                 text: "Edit task",
                 href: "/tasks/" + task.id + "/edit"
@@ -121,6 +169,17 @@
   {{ super() }}
   <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function() {
+      // Handle filters
+      const filterForm = document.querySelector('.task-filters form');
+      const filterControls = filterForm.querySelectorAll('select');
+      
+      filterControls.forEach(control => {
+        control.addEventListener('change', function() {
+          filterForm.submit();
+        });
+      });
+
+      // Handle delete buttons
       document.querySelectorAll('[data-task-id]').forEach(function(button) {
         button.addEventListener('click', async function(e) {
           e.preventDefault();
